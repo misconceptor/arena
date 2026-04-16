@@ -14,6 +14,15 @@ public:
     size_t used() const {
         return offset - begin;
     }
+    bool is_owner() const {
+        return owns_memory;
+    }
+    bool is_valid() const {
+        return begin != nullptr;
+    }
+    size_t remaining_size() const {
+        return end - offset;
+    }
     char* align(char* _offset, size_t alignment){
         size_t addr = (size_t)_offset;
         addr = (addr + alignment - 1) & ~(alignment - 1);
@@ -61,5 +70,15 @@ public:
         offset = aligned_address + size;
         return res;
     }
-    void reset();
+    void reset() {
+        offset = begin;
+    }
+    void release() {
+        if(!owns_memory) throw std::runtime_error("arena doesn't own memory");
+        if(begin) {
+            free(begin);
+            begin = end = offset = nullptr;
+            owns_memory = false;
+        }
+    }
 };

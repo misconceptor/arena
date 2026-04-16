@@ -52,6 +52,36 @@ void car_test(){
     car->~Car(); // segfault if i delete the object, because Arena owns it, not me
 }
 
+void test_reset() {
+    const int size = 1024;
+    arena a(size);
+    void* ptr = a.allocate(sizeof(Car), alignof(Car));
+    cout << "used : " << a.used() << '\n';
+    Car* car = (Car*)ptr;
+    new (car) Car();
+    a.reset();
+    cout << "used after reset : " << a.used() << '\n';
+}
+void test_release() {
+    const int size = 1024;
+    arena a(size);
+    void* ptr = a.allocate(sizeof(Car), alignof(Car));
+    cout << "used : " << a.used() << '\n';
+    Car* car = (Car*)ptr;
+    cout << "ptr: " << car << '\n';
+    new (car) Car();
+    car->~Car(); // delete object before freeing memory
+    a.release(); // now car is a dangling pointer
+}
+
 int main(){
+
+    /*
+    todo
+        delete = operator
+        delete copying
+        add move semantics
+        testing
+    */
     return 0;
 }
